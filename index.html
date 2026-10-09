@@ -3,197 +3,360 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Court-Ordered Sites of Memory — Demo</title>
+<title>Sites of Memory — Demo</title>
+
 <link rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
 <style>
-  :root {
-    --brown: #3D332B;
-    --burgundy: #783F43;
-    --ivory: #F4EFE5;
-    --paper: #E8DFD0;
-    --ink: #302B26;
-    --border: #C8BBA8;
-  }
-  * { box-sizing: border-box; }
+:root {
+  --brown: #3D332B;
+  --burgundy: #783F43;
+  --ivory: #F4EFE5;
+  --paper: #E8DFD0;
+  --ink: #302B26;
+  --border: #C8BBA8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: Arial, sans-serif;
+}
+
+header {
+  background: var(--brown);
+  color: #FFF9F0;
+  padding: 16px 22px;
+}
+
+h1 {
+  margin: 0 0 6px;
+  font: 26px Georgia, serif;
+}
+
+header p {
+  margin: 0;
+  line-height: 1.4;
+  font-size: 14px;
+}
+
+.notice {
+  background: #FFF9F0;
+  padding: 9px 22px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+}
+
+main {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr) 340px;
+}
+
+.filters,
+.details {
+  padding: 20px;
+  background: var(--ivory);
+  overflow-y: auto;
+}
+
+.filters {
+  border-right: 1px solid var(--border);
+}
+
+.details {
+  background: #FFF9F0;
+  border-left: 1px solid var(--border);
+  line-height: 1.5;
+}
+
+h2 {
+  margin: 0 0 14px;
+  font: 23px Georgia, serif;
+}
+
+h3 {
+  font: 19px Georgia, serif;
+}
+
+label {
+  display: block;
+  font-size: 14px;
+  font-weight: bold;
+  margin: 15px 0 6px;
+}
+
+select,
+button {
+  width: 100%;
+  font: inherit;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+select {
+  color: var(--ink);
+  background: #FFF9F0;
+  border: 1px solid var(--border);
+}
+
+button {
+  border: 0;
+  background: var(--burgundy);
+  color: white;
+  cursor: pointer;
+  margin-top: 14px;
+}
+
+button:hover {
+  background: #603236;
+}
+
+button:focus-visible,
+select:focus-visible,
+a:focus-visible {
+  outline: 3px solid #365F75;
+  outline-offset: 3px;
+}
+
+#map {
+  width: 100%;
+  min-width: 0;
+}
+
+#count {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 14px;
+  margin: 10px 0;
+}
+
+.swatch {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.details dl {
+  margin: 18px 0 0;
+}
+
+.details dt {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.details dd {
+  margin: 3px 0 15px;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+}
+
+.details a {
+  color: var(--burgundy);
+}
+
+.details figure {
+  margin: 18px 0;
+}
+
+.details img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+
+.details figcaption {
+  font-size: 12px;
+  margin-top: 8px;
+  color: #584A3E;
+}
+
+.image-placeholder {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background: var(--paper);
+  border: 1px dashed #A99883;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px;
+  color: #584A3E;
+  text-align: center;
+}
+
+.image-placeholder span {
+  font-size: 13px;
+}
+
+.demo-tag {
+  font-size: 12px;
+  padding: 7px 9px;
+  background: var(--paper);
+  border-radius: 4px;
+}
+
+.pin-icon {
+  background: transparent;
+  border: 0;
+}
+
+.pin {
+  width: 28px;
+  height: 28px;
+  border: 2px solid white;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  box-shadow: 0 2px 5px #0006;
+  position: relative;
+}
+
+.pin::after {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: white;
+}
+
+@media (min-width: 1000px) {
   body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    color: var(--ink);
-    background: var(--paper);
-  }
-  header {
-    padding: 20px 24px;
-    background: var(--brown);
-    color: #FFF9F0;
-  }
-  h1 {
-    margin: 0 0 8px;
-    font: 28px Georgia, serif;
-  }
-  header p { margin: 0; line-height: 1.5; }
-  .notice {
-    padding: 10px 24px;
-    background: #FFF9F0;
-    border-bottom: 1px solid var(--border);
-    font-size: 14px;
-  }
-  .workspace {
-    display: grid;
-    grid-template-columns: 300px minmax(0, 1fr);
-    min-height: 650px;
-  }
-  aside {
-    padding: 20px;
-    background: var(--ivory);
-    border-right: 1px solid var(--border);
-  }
-  h2 { font: 23px Georgia, serif; margin: 0 0 16px; }
-  h3 { font: 20px Georgia, serif; }
-  label {
-    display: block;
-    margin: 16px 0 6px;
-    font-weight: bold;
-    font-size: 14px;
-  }
-  select, button {
-    width: 100%;
-    padding: 11px;
-    border-radius: 4px;
-    font: inherit;
-  }
-  select {
-    background: #FFF9F0;
-    color: var(--ink);
-    border: 1px solid var(--border);
-  }
-  button {
-    margin-top: 16px;
-    background: var(--burgundy);
-    color: white;
-    border: 0;
-    cursor: pointer;
-  }
-  button:hover { background: #603236; }
-  button:focus-visible, select:focus-visible, a:focus-visible {
-    outline: 3px solid #365F75;
-    outline-offset: 3px;
-  }
-  #map { height: 650px; width: 100%; }
-  .legend { margin-top: 24px; }
-  .legend-item {
+    height: 100vh;
+    height: 100dvh;
     display: flex;
-    align-items: center;
-    gap: 9px;
-    margin: 10px 0;
-    font-size: 14px;
+    flex-direction: column;
+    overflow: hidden;
   }
-  .swatch {
-    width: 13px;
-    height: 13px;
-    border-radius: 50%;
+
+  header,
+  .notice {
     flex-shrink: 0;
   }
+
+  main {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .filters,
+  .details,
+  #map {
+    height: 100%;
+    min-height: 0;
+  }
+}
+
+@media (max-width: 999px) {
+  main {
+    grid-template-columns: 230px minmax(0, 1fr);
+  }
+
+  #map {
+    height: 60vh;
+    height: 60dvh;
+    min-height: 320px;
+  }
+
   .details {
-    padding: 24px;
-    background: #FFF9F0;
+    grid-column: 1 / -1;
+    border-left: 0;
     border-top: 1px solid var(--border);
-    line-height: 1.6;
   }
-  .details dl {
-    display: grid;
-    grid-template-columns: 180px 1fr;
-    gap: 9px 18px;
-    max-width: 1000px;
+
+  .details figure {
+    max-width: 450px;
   }
-  dt { font-weight: bold; }
-  dd { margin: 0; overflow-wrap: anywhere; }
-  a { color: var(--burgundy); }
-  .pin-icon { background: transparent; border: 0; }
-  .pin {
-    width: 28px;
-    height: 28px;
-    border: 2px solid white;
-    border-radius: 50% 50% 50% 0;
-    transform: rotate(-45deg);
-    box-shadow: 0 2px 5px #0006;
-    position: relative;
+}
+
+@media (max-width: 600px) {
+  main {
+    display: flex;
+    flex-direction: column;
   }
-  .pin::after {
-    content: "";
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    background: white;
-    border-radius: 50%;
-    top: 8px;
-    left: 8px;
+
+  .filters {
+    border-right: 0;
   }
-  .hint { font-size: 14px; line-height: 1.5; }
-  @media (max-width: 720px) {
-    .workspace { grid-template-columns: 1fr; }
-    aside { border-right: 0; }
-    #map { height: 450px; }
-    .details dl { grid-template-columns: 1fr; gap: 4px; }
-    dd { margin-bottom: 12px; }
-    h1 { font-size: 24px; }
+
+  #map {
+    height: 55vh;
+    height: 55dvh;
+    min-height: 300px;
   }
+
+  h1 {
+    font-size: 23px;
+  }
+}
 </style>
 </head>
-<body>
 
+<body>
 <header>
   <h1>Court-Ordered Sites of Memory</h1>
   <p>Monuments, memorials, and sites of conscience in Latin America</p>
 </header>
 
 <div class="notice">
-  <strong>Demonstration only:</strong>
-  All five sites and four court cases are fictional.
+  <strong>Demo — fictional data.</strong>
+  Five imaginary sites represent four imaginary cases.
   Coordinates are illustrative.
 </div>
 
 <main>
-  <div class="workspace">
-    <aside>
-      <h2>Explore sites</h2>
-      <p class="hint">
-        Combine filters, then select a pin to read its case details
-        below the map.
-      </p>
+  <aside class="filters">
+    <label for="country">Country</label>
+    <select id="country"></select>
 
-      <label for="country">Country</label>
-      <select id="country"></select>
+    <label for="type">Site type</label>
+    <select id="type"></select>
 
-      <label for="type">Site type</label>
-      <select id="type"></select>
+    <label for="status">Implementation status</label>
+    <select id="status"></select>
 
-      <label for="status">Implementation status</label>
-      <select id="status"></select>
+    <button id="reset" type="button">Reset filters</button>
 
-      <button id="reset" type="button">Reset filters</button>
-      <p id="count" role="status" aria-live="polite"></p>
+    <p id="count" role="status" aria-live="polite"></p>
 
-      <div class="legend">
-        <h3>Site types</h3>
-        <div id="legend"></div>
-      </div>
-    </aside>
+    <h3>Legend</h3>
+    <div id="legend"></div>
+  </aside>
 
-    <div id="map" aria-label="Map of fictional commemorative sites"></div>
-  </div>
+  <div id="map" aria-label="Map of fictional sites"></div>
 
-  <section class="details" id="details" aria-labelledby="details-title">
+  <section class="details"
+           id="details"
+           aria-labelledby="details-title">
     <h2 id="details-title">Select a site</h2>
-    <p>Click a coloured pin to display its case information here.</p>
+    <p>Click a pin to display its photograph area and case details.</p>
   </section>
 </main>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
-/* EDITABLE TEST DATA
-   Leave missing dates, images and source links as empty strings.
-   Future images can use paths such as "images/memorial.jpg".
+/* TEST DATA
+   Image fields can later contain a URL or a path such as:
+   images/memorial.jpg
 */
 const sites = [
   {
@@ -202,7 +365,8 @@ const sites = [
     type: "Memorial",
     country: "Argentina",
     city: "Buenos Aires",
-    lat: -34.6037, lng: -58.3816,
+    lat: -34.6037,
+    lng: -58.3816,
     caseId: "TESTCASE001",
     caseName: "Fictional River Families v. Argentina",
     judgmentDate: "2015-06-12",
@@ -211,8 +375,11 @@ const sites = [
     inaugurationDate: "2019-03-24",
     description: "A fictional memorial demonstrating how a completed site could be presented.",
     verified: "2026-10-04",
-    judgmentUrl: "", implementationUrl: "",
-    imageUrl: "", imageCaption: "", imageCredit: ""
+    judgmentUrl: "",
+    implementationUrl: "",
+    imageUrl: "",
+    imageCaption: "",
+    imageCredit: ""
   },
   {
     id: "TEST002",
@@ -220,7 +387,8 @@ const sites = [
     type: "Monument",
     country: "Chile",
     city: "Santiago",
-    lat: -33.4489, lng: -70.6693,
+    lat: -33.4489,
+    lng: -70.6693,
     caseId: "TESTCASE002",
     caseName: "Fictional Plaza Survivors v. Chile",
     judgmentDate: "2018-09-20",
@@ -229,8 +397,11 @@ const sites = [
     inaugurationDate: "",
     description: "A fictional monument under construction following an imaginary Court order.",
     verified: "2026-10-04",
-    judgmentUrl: "", implementationUrl: "",
-    imageUrl: "", imageCaption: "", imageCredit: ""
+    judgmentUrl: "",
+    implementationUrl: "",
+    imageUrl: "",
+    imageCaption: "",
+    imageCredit: ""
   },
   {
     id: "TEST003",
@@ -238,7 +409,8 @@ const sites = [
     type: "Site of conscience",
     country: "Peru",
     city: "Lima",
-    lat: -12.0464, lng: -77.0428,
+    lat: -12.0464,
+    lng: -77.0428,
     caseId: "TESTCASE003",
     caseName: "Fictional House Families v. Peru",
     judgmentDate: "2020-02-14",
@@ -247,8 +419,11 @@ const sites = [
     inaugurationDate: "",
     description: "A fictional proposed memory site that has not yet been established.",
     verified: "2026-10-04",
-    judgmentUrl: "", implementationUrl: "",
-    imageUrl: "", imageCaption: "", imageCredit: ""
+    judgmentUrl: "",
+    implementationUrl: "",
+    imageUrl: "",
+    imageCaption: "",
+    imageCredit: ""
   },
   {
     id: "TEST004",
@@ -256,7 +431,8 @@ const sites = [
     type: "Memorial",
     country: "Colombia",
     city: "Bogotá",
-    lat: 4.7110, lng: -74.0721,
+    lat: 4.7110,
+    lng: -74.0721,
     caseId: "TESTCASE004",
     caseName: "Fictional Garden Community v. Colombia",
     judgmentDate: "2016-11-08",
@@ -265,8 +441,11 @@ const sites = [
     inaugurationDate: "2021-12-10",
     description: "A fictional garden demonstrating another completed commemorative site.",
     verified: "2026-10-04",
-    judgmentUrl: "", implementationUrl: "",
-    imageUrl: "", imageCaption: "", imageCredit: ""
+    judgmentUrl: "",
+    implementationUrl: "",
+    imageUrl: "",
+    imageCaption: "",
+    imageCredit: ""
   },
   {
     id: "TEST005",
@@ -274,7 +453,8 @@ const sites = [
     type: "Other commemorative site",
     country: "Peru",
     city: "Lima",
-    lat: -12.0600, lng: -77.0300,
+    lat: -12.0600,
+    lng: -77.0300,
     caseId: "TESTCASE003",
     caseName: "Fictional House Families v. Peru",
     judgmentDate: "2020-02-14",
@@ -283,12 +463,14 @@ const sites = [
     inaugurationDate: "",
     description: "A second fictional site linked to the same imaginary case as the House of Memory.",
     verified: "2026-10-04",
-    judgmentUrl: "", implementationUrl: "",
-    imageUrl: "", imageCaption: "", imageCredit: ""
+    judgmentUrl: "",
+    implementationUrl: "",
+    imageUrl: "",
+    imageCaption: "",
+    imageCredit: ""
   }
 ];
 
-/* EDITABLE SITE-TYPE COLOURS */
 const colours = {
   "Monument": "#365F75",
   "Memorial": "#783F43",
@@ -296,15 +478,19 @@ const colours = {
   "Other commemorative site": "#946318"
 };
 
-const map = L.map("map").setView([-17, -66], 3);
+const map = L.map("map", {
+  scrollWheelZoom: false
+}).setView([-17, -66], 3);
 
+/* Labels are supplied by this basemap provider. */
 L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 19,
   attribution:
     '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
-const markers = L.featureGroup().addTo(map);
+const markerGroup = L.featureGroup().addTo(map);
+
 const controls = {
   country: document.getElementById("country"),
   type: document.getElementById("type"),
@@ -313,39 +499,70 @@ const controls = {
 
 let selectedId = null;
 
-function fillSelect(element, field) {
-  element.add(new Option("All", ""));
-  [...new Set(sites.map(site => site[field]))]
-    .sort()
-    .forEach(value => element.add(new Option(value, value)));
+if (window.ResizeObserver) {
+  new ResizeObserver(() => map.invalidateSize())
+    .observe(document.getElementById("map"));
+} else {
+  window.addEventListener("resize", () => map.invalidateSize());
 }
 
-fillSelect(controls.country, "country");
-fillSelect(controls.type, "type");
-fillSelect(controls.status, "status");
+function populateSelect(element, field) {
+  element.add(new Option("All", ""));
+
+  [...new Set(sites.map(site => site[field]))]
+    .sort()
+    .forEach(value => {
+      element.add(new Option(value, value));
+    });
+}
+
+populateSelect(controls.country, "country");
+populateSelect(controls.type, "type");
+populateSelect(controls.status, "status");
 
 Object.entries(colours).forEach(([label, colour]) => {
   const row = document.createElement("div");
   row.className = "legend-item";
+
   const swatch = document.createElement("span");
   swatch.className = "swatch";
   swatch.style.backgroundColor = colour;
+
   row.append(swatch, document.createTextNode(label));
   document.getElementById("legend").append(row);
 });
 
 function safeUrl(value) {
   if (!value) return null;
+
   try {
     const url = new URL(value, document.baseURI);
-    return ["http:", "https:"].includes(url.protocol) ? url.href : null;
+
+    return ["https:", "http:"].includes(url.protocol)
+      ? url.href
+      : null;
   } catch {
     return null;
   }
 }
 
+function makePlaceholder() {
+  const box = document.createElement("div");
+  box.className = "image-placeholder";
+
+  const title = document.createElement("strong");
+  title.textContent = "Site photograph";
+
+  const note = document.createElement("span");
+  note.textContent = "Image placeholder — demonstration only";
+
+  box.append(title, note);
+  return box;
+}
+
 function showDetails(site) {
   selectedId = site.id;
+
   const panel = document.getElementById("details");
   panel.replaceChildren();
 
@@ -357,33 +574,53 @@ function showDetails(site) {
   location.textContent = `${site.city}, ${site.country}`;
 
   const notice = document.createElement("p");
-  notice.textContent = "Fictional demonstration record — not an actual judgment or site.";
+  notice.className = "demo-tag";
+  notice.textContent =
+    "Fictional record — not an actual judgment or site.";
 
   panel.append(title, location, notice);
 
+  const figure = document.createElement("figure");
   const imageUrl = safeUrl(site.imageUrl);
+  const caption = document.createElement("figcaption");
+
   if (imageUrl) {
-    const figure = document.createElement("figure");
     const image = document.createElement("img");
-    image.src = imageUrl;
     image.alt = site.imageCaption || site.name;
     image.loading = "lazy";
-    image.style.maxWidth = "100%";
-    image.style.maxHeight = "350px";
-    const caption = document.createElement("figcaption");
-    caption.textContent = [site.imageCaption, site.imageCredit]
-      .filter(Boolean).join(" — ");
-    figure.append(image, caption);
-    panel.append(figure);
+
+    image.addEventListener("error", () => {
+      image.replaceWith(makePlaceholder());
+      caption.textContent =
+        "Image unavailable — placeholder shown.";
+    }, { once: true });
+
+    image.src = imageUrl;
+    figure.append(image);
+
+    caption.textContent = [
+      site.imageCaption,
+      site.imageCredit
+    ].filter(Boolean).join(" — ");
+  } else {
+    figure.append(makePlaceholder());
+    caption.textContent =
+      "A photograph, caption, and image credit will appear here.";
   }
+
+  figure.append(caption);
+  panel.append(figure);
 
   const list = document.createElement("dl");
 
   function addField(label, value) {
     const term = document.createElement("dt");
     term.textContent = label;
+
     const definition = document.createElement("dd");
-    definition.textContent = value || "Not supplied in this demo";
+    definition.textContent =
+      value || "Not supplied in this demo";
+
     list.append(term, definition);
   }
 
@@ -396,11 +633,13 @@ function showDetails(site) {
   addField("Description", site.description);
   addField("Last verified", site.verified);
 
-  function addLink(label, value) {
+  function addSource(label, value) {
     const term = document.createElement("dt");
     term.textContent = label;
+
     const definition = document.createElement("dd");
     const url = safeUrl(value);
+
     if (url) {
       const link = document.createElement("a");
       link.href = url;
@@ -409,86 +648,124 @@ function showDetails(site) {
       link.textContent = "Open source";
       definition.append(link);
     } else {
-      definition.textContent = "Source link placeholder — no fictional document provided";
+      definition.textContent =
+        "Source link placeholder — no fictional document provided";
     }
+
     list.append(term, definition);
   }
 
-  addLink("Official judgment", site.judgmentUrl);
-  addLink("Implementation evidence", site.implementationUrl);
+  addSource("Official judgment", site.judgmentUrl);
+  addSource("Implementation evidence", site.implementationUrl);
+
   panel.append(list);
+  panel.scrollTop = 0;
 }
 
 function clearDetails() {
   selectedId = null;
+
   const panel = document.getElementById("details");
   panel.replaceChildren();
+
   const title = document.createElement("h2");
   title.id = "details-title";
   title.textContent = "Select a site";
+
   const text = document.createElement("p");
-  text.textContent = "Click a coloured pin to display its case information here.";
+  text.textContent =
+    "Click a pin to display its photograph area and case details.";
+
   panel.append(title, text);
 }
 
 function render() {
-  markers.clearLayers();
+  markerGroup.clearLayers();
 
   const visible = sites.filter(site =>
-    (!controls.country.value || site.country === controls.country.value) &&
-    (!controls.type.value || site.type === controls.type.value) &&
-    (!controls.status.value || site.status === controls.status.value)
+    (!controls.country.value ||
+      site.country === controls.country.value) &&
+    (!controls.type.value ||
+      site.type === controls.type.value) &&
+    (!controls.status.value ||
+      site.status === controls.status.value)
   );
 
   visible.forEach(site => {
     const icon = L.divIcon({
       className: "pin-icon",
-      html: `<div class="pin" style="background:${colours[site.type] || "#3D332B"}"></div>`,
+      html:
+        `<div class="pin" style="background:${colours[site.type] || "#3D332B"}"></div>`,
       iconSize: [30, 38],
       iconAnchor: [14, 34],
       popupAnchor: [0, -32]
     });
 
     const popup = document.createElement("div");
+
     const heading = document.createElement("strong");
     heading.textContent = site.name;
+
     const button = document.createElement("button");
     button.type = "button";
     button.textContent = "Read case details";
+
     button.addEventListener("click", () => {
       showDetails(site);
-      document.getElementById("details").scrollIntoView({
-        behavior: "smooth", block: "start"
-      });
+
+      if (window.matchMedia("(max-width: 999px)").matches) {
+        document.getElementById("details").scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+      }
     });
+
     popup.append(heading, button);
 
-    L.marker([site.lat, site.lng], {icon, title: site.name})
+    L.marker([site.lat, site.lng], {
+      icon,
+      title: site.name,
+      alt: site.name
+    })
       .bindPopup(popup)
       .on("click", () => showDetails(site))
-      .addTo(markers);
+      .addTo(markerGroup);
   });
 
-  const cases = new Set(visible.map(site => site.caseId)).size;
-  document.getElementById("count").textContent =
-    `${visible.length} of ${sites.length} sites shown · ${cases} distinct cases` +
-    (visible.length ? "" : " · No matches. Try resetting the filters.");
+  const caseCount =
+    new Set(visible.map(site => site.caseId)).size;
 
-  if (selectedId && !visible.some(site => site.id === selectedId)) {
+  document.getElementById("count").textContent =
+    `${visible.length} of ${sites.length} sites shown · ${caseCount} distinct cases` +
+    (visible.length
+      ? ""
+      : " · No matches. Reset or change the filters.");
+
+  if (
+    selectedId &&
+    !visible.some(site => site.id === selectedId)
+  ) {
     clearDetails();
   }
 
   if (visible.length) {
-    map.fitBounds(markers.getBounds(), {padding: [35, 35], maxZoom: 12});
+    map.fitBounds(markerGroup.getBounds(), {
+      padding: [35, 35],
+      maxZoom: 12
+    });
   }
 }
 
-Object.values(controls).forEach(control =>
-  control.addEventListener("change", render)
-);
+Object.values(controls).forEach(control => {
+  control.addEventListener("change", render);
+});
 
 document.getElementById("reset").addEventListener("click", () => {
-  Object.values(controls).forEach(control => control.value = "");
+  Object.values(controls).forEach(control => {
+    control.value = "";
+  });
+
   clearDetails();
   render();
 });
