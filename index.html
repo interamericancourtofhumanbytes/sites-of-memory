@@ -1,87 +1,499 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Sites of Memory — Hosting Test</title>
-  <style>
-    body {
-      margin: 0;
-      background: #E8DFD0;
-      color: #302B26;
-      font-family: Arial, sans-serif;
-      line-height: 1.6;
-    }
-
-    header {
-      padding: 32px 24px;
-      background: #3D332B;
-      color: #FFF9F0;
-    }
-
-    h1 {
-      margin: 0;
-      font-family: Georgia, serif;
-    }
-
-    main {
-      max-width: 700px;
-      margin: 40px auto;
-      padding: 28px;
-      background: #F4EFE5;
-      border-radius: 8px;
-    }
-
-    button {
-      padding: 12px 20px;
-      border: none;
-      border-radius: 4px;
-      background: #783F43;
-      color: white;
-      font: inherit;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #603236;
-    }
-
-    button:focus-visible {
-      outline: 3px solid #365F75;
-      outline-offset: 4px;
-    }
-
-    @media (max-width: 760px) {
-      main {
-        margin: 20px;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Court-Ordered Sites of Memory — Demo</title>
+<link rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  :root {
+    --brown: #3D332B;
+    --burgundy: #783F43;
+    --ivory: #F4EFE5;
+    --paper: #E8DFD0;
+    --ink: #302B26;
+    --border: #C8BBA8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+  }
+  header {
+    padding: 20px 24px;
+    background: var(--brown);
+    color: #FFF9F0;
+  }
+  h1 {
+    margin: 0 0 8px;
+    font: 28px Georgia, serif;
+  }
+  header p { margin: 0; line-height: 1.5; }
+  .notice {
+    padding: 10px 24px;
+    background: #FFF9F0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .workspace {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    min-height: 650px;
+  }
+  aside {
+    padding: 20px;
+    background: var(--ivory);
+    border-right: 1px solid var(--border);
+  }
+  h2 { font: 23px Georgia, serif; margin: 0 0 16px; }
+  h3 { font: 20px Georgia, serif; }
+  label {
+    display: block;
+    margin: 16px 0 6px;
+    font-weight: bold;
+    font-size: 14px;
+  }
+  select, button {
+    width: 100%;
+    padding: 11px;
+    border-radius: 4px;
+    font: inherit;
+  }
+  select {
+    background: #FFF9F0;
+    color: var(--ink);
+    border: 1px solid var(--border);
+  }
+  button {
+    margin-top: 16px;
+    background: var(--burgundy);
+    color: white;
+    border: 0;
+    cursor: pointer;
+  }
+  button:hover { background: #603236; }
+  button:focus-visible, select:focus-visible, a:focus-visible {
+    outline: 3px solid #365F75;
+    outline-offset: 3px;
+  }
+  #map { height: 650px; width: 100%; }
+  .legend { margin-top: 24px; }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 10px 0;
+    font-size: 14px;
+  }
+  .swatch {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .details {
+    padding: 24px;
+    background: #FFF9F0;
+    border-top: 1px solid var(--border);
+    line-height: 1.6;
+  }
+  .details dl {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 9px 18px;
+    max-width: 1000px;
+  }
+  dt { font-weight: bold; }
+  dd { margin: 0; overflow-wrap: anywhere; }
+  a { color: var(--burgundy); }
+  .pin-icon { background: transparent; border: 0; }
+  .pin {
+    width: 28px;
+    height: 28px;
+    border: 2px solid white;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    box-shadow: 0 2px 5px #0006;
+    position: relative;
+  }
+  .pin::after {
+    content: "";
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+    top: 8px;
+    left: 8px;
+  }
+  .hint { font-size: 14px; line-height: 1.5; }
+  @media (max-width: 720px) {
+    .workspace { grid-template-columns: 1fr; }
+    aside { border-right: 0; }
+    #map { height: 450px; }
+    .details dl { grid-template-columns: 1fr; gap: 4px; }
+    dd { margin-bottom: 12px; }
+    h1 { font-size: 24px; }
+  }
+</style>
 </head>
 <body>
-  <header>
-    <h1>Court-Ordered Sites of Memory</h1>
-    <p>Group project · Website hosting test</p>
-  </header>
 
-  <main>
-    <h2>Your website is working</h2>
-    <p>
-      If you can see this page at your GitHub Pages address,
-      your website files are being published successfully.
-    </p>
+<header>
+  <h1>Court-Ordered Sites of Memory</h1>
+  <p>Monuments, memorials, and sites of conscience in Latin America</p>
+</header>
 
-    <button id="test-button" type="button">Test interaction</button>
-    <p id="result" role="status"></p>
+<div class="notice">
+  <strong>Demonstration only:</strong>
+  All five sites and four court cases are fictional.
+  Coordinates are illustrative.
+</div>
 
-    <p><small>This is a test page. It contains no real case data.</small></p>
-  </main>
+<main>
+  <div class="workspace">
+    <aside>
+      <h2>Explore sites</h2>
+      <p class="hint">
+        Combine filters, then select a pin to read its case details
+        below the map.
+      </p>
 
-  <script>
-    document.getElementById("test-button").addEventListener("click", () => {
-      document.getElementById("result").textContent =
-        "Success — JavaScript is working too.";
+      <label for="country">Country</label>
+      <select id="country"></select>
+
+      <label for="type">Site type</label>
+      <select id="type"></select>
+
+      <label for="status">Implementation status</label>
+      <select id="status"></select>
+
+      <button id="reset" type="button">Reset filters</button>
+      <p id="count" role="status" aria-live="polite"></p>
+
+      <div class="legend">
+        <h3>Site types</h3>
+        <div id="legend"></div>
+      </div>
+    </aside>
+
+    <div id="map" aria-label="Map of fictional commemorative sites"></div>
+  </div>
+
+  <section class="details" id="details" aria-labelledby="details-title">
+    <h2 id="details-title">Select a site</h2>
+    <p>Click a coloured pin to display its case information here.</p>
+  </section>
+</main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* EDITABLE TEST DATA
+   Leave missing dates, images and source links as empty strings.
+   Future images can use paths such as "images/memorial.jpg".
+*/
+const sites = [
+  {
+    id: "TEST001",
+    name: "Fictional Memorial of the River",
+    type: "Memorial",
+    country: "Argentina",
+    city: "Buenos Aires",
+    lat: -34.6037, lng: -58.3816,
+    caseId: "TESTCASE001",
+    caseName: "Fictional River Families v. Argentina",
+    judgmentDate: "2015-06-12",
+    measure: "Construct a memorial commemorating victims and identifying their names.",
+    status: "Completed",
+    inaugurationDate: "2019-03-24",
+    description: "A fictional memorial demonstrating how a completed site could be presented.",
+    verified: "2026-10-04",
+    judgmentUrl: "", implementationUrl: "",
+    imageUrl: "", imageCaption: "", imageCredit: ""
+  },
+  {
+    id: "TEST002",
+    name: "Fictional Plaza of Remembrance",
+    type: "Monument",
+    country: "Chile",
+    city: "Santiago",
+    lat: -33.4489, lng: -70.6693,
+    caseId: "TESTCASE002",
+    caseName: "Fictional Plaza Survivors v. Chile",
+    judgmentDate: "2018-09-20",
+    measure: "Install a public monument with an inscription acknowledging the victims.",
+    status: "In progress",
+    inaugurationDate: "",
+    description: "A fictional monument under construction following an imaginary Court order.",
+    verified: "2026-10-04",
+    judgmentUrl: "", implementationUrl: "",
+    imageUrl: "", imageCaption: "", imageCredit: ""
+  },
+  {
+    id: "TEST003",
+    name: "Fictional House of Memory",
+    type: "Site of conscience",
+    country: "Peru",
+    city: "Lima",
+    lat: -12.0464, lng: -77.0428,
+    caseId: "TESTCASE003",
+    caseName: "Fictional House Families v. Peru",
+    judgmentDate: "2020-02-14",
+    measure: "Establish a public site for remembrance and human rights education.",
+    status: "Pending",
+    inaugurationDate: "",
+    description: "A fictional proposed memory site that has not yet been established.",
+    verified: "2026-10-04",
+    judgmentUrl: "", implementationUrl: "",
+    imageUrl: "", imageCaption: "", imageCredit: ""
+  },
+  {
+    id: "TEST004",
+    name: "Fictional Garden of Names",
+    type: "Memorial",
+    country: "Colombia",
+    city: "Bogotá",
+    lat: 4.7110, lng: -74.0721,
+    caseId: "TESTCASE004",
+    caseName: "Fictional Garden Community v. Colombia",
+    judgmentDate: "2016-11-08",
+    measure: "Create a memorial garden displaying the names of victims.",
+    status: "Completed",
+    inaugurationDate: "2021-12-10",
+    description: "A fictional garden demonstrating another completed commemorative site.",
+    verified: "2026-10-04",
+    judgmentUrl: "", implementationUrl: "",
+    imageUrl: "", imageCaption: "", imageCredit: ""
+  },
+  {
+    id: "TEST005",
+    name: "Fictional Memory Exhibition",
+    type: "Other commemorative site",
+    country: "Peru",
+    city: "Lima",
+    lat: -12.0600, lng: -77.0300,
+    caseId: "TESTCASE003",
+    caseName: "Fictional House Families v. Peru",
+    judgmentDate: "2020-02-14",
+    measure: "Create a permanent commemorative exhibition at a second location.",
+    status: "Not verified",
+    inaugurationDate: "",
+    description: "A second fictional site linked to the same imaginary case as the House of Memory.",
+    verified: "2026-10-04",
+    judgmentUrl: "", implementationUrl: "",
+    imageUrl: "", imageCaption: "", imageCredit: ""
+  }
+];
+
+/* EDITABLE SITE-TYPE COLOURS */
+const colours = {
+  "Monument": "#365F75",
+  "Memorial": "#783F43",
+  "Site of conscience": "#466747",
+  "Other commemorative site": "#946318"
+};
+
+const map = L.map("map").setView([-17, -66], 3);
+
+L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom: 19,
+  attribution:
+    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+
+const markers = L.featureGroup().addTo(map);
+const controls = {
+  country: document.getElementById("country"),
+  type: document.getElementById("type"),
+  status: document.getElementById("status")
+};
+
+let selectedId = null;
+
+function fillSelect(element, field) {
+  element.add(new Option("All", ""));
+  [...new Set(sites.map(site => site[field]))]
+    .sort()
+    .forEach(value => element.add(new Option(value, value)));
+}
+
+fillSelect(controls.country, "country");
+fillSelect(controls.type, "type");
+fillSelect(controls.status, "status");
+
+Object.entries(colours).forEach(([label, colour]) => {
+  const row = document.createElement("div");
+  row.className = "legend-item";
+  const swatch = document.createElement("span");
+  swatch.className = "swatch";
+  swatch.style.backgroundColor = colour;
+  row.append(swatch, document.createTextNode(label));
+  document.getElementById("legend").append(row);
+});
+
+function safeUrl(value) {
+  if (!value) return null;
+  try {
+    const url = new URL(value, document.baseURI);
+    return ["http:", "https:"].includes(url.protocol) ? url.href : null;
+  } catch {
+    return null;
+  }
+}
+
+function showDetails(site) {
+  selectedId = site.id;
+  const panel = document.getElementById("details");
+  panel.replaceChildren();
+
+  const title = document.createElement("h2");
+  title.id = "details-title";
+  title.textContent = site.name;
+
+  const location = document.createElement("p");
+  location.textContent = `${site.city}, ${site.country}`;
+
+  const notice = document.createElement("p");
+  notice.textContent = "Fictional demonstration record — not an actual judgment or site.";
+
+  panel.append(title, location, notice);
+
+  const imageUrl = safeUrl(site.imageUrl);
+  if (imageUrl) {
+    const figure = document.createElement("figure");
+    const image = document.createElement("img");
+    image.src = imageUrl;
+    image.alt = site.imageCaption || site.name;
+    image.loading = "lazy";
+    image.style.maxWidth = "100%";
+    image.style.maxHeight = "350px";
+    const caption = document.createElement("figcaption");
+    caption.textContent = [site.imageCaption, site.imageCredit]
+      .filter(Boolean).join(" — ");
+    figure.append(image, caption);
+    panel.append(figure);
+  }
+
+  const list = document.createElement("dl");
+
+  function addField(label, value) {
+    const term = document.createElement("dt");
+    term.textContent = label;
+    const definition = document.createElement("dd");
+    definition.textContent = value || "Not supplied in this demo";
+    list.append(term, definition);
+  }
+
+  addField("Court case", site.caseName);
+  addField("Site type", site.type);
+  addField("Judgment date", site.judgmentDate);
+  addField("Ordered measure", site.measure);
+  addField("Implementation status", site.status);
+  addField("Inauguration date", site.inaugurationDate);
+  addField("Description", site.description);
+  addField("Last verified", site.verified);
+
+  function addLink(label, value) {
+    const term = document.createElement("dt");
+    term.textContent = label;
+    const definition = document.createElement("dd");
+    const url = safeUrl(value);
+    if (url) {
+      const link = document.createElement("a");
+      link.href = url;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = "Open source";
+      definition.append(link);
+    } else {
+      definition.textContent = "Source link placeholder — no fictional document provided";
+    }
+    list.append(term, definition);
+  }
+
+  addLink("Official judgment", site.judgmentUrl);
+  addLink("Implementation evidence", site.implementationUrl);
+  panel.append(list);
+}
+
+function clearDetails() {
+  selectedId = null;
+  const panel = document.getElementById("details");
+  panel.replaceChildren();
+  const title = document.createElement("h2");
+  title.id = "details-title";
+  title.textContent = "Select a site";
+  const text = document.createElement("p");
+  text.textContent = "Click a coloured pin to display its case information here.";
+  panel.append(title, text);
+}
+
+function render() {
+  markers.clearLayers();
+
+  const visible = sites.filter(site =>
+    (!controls.country.value || site.country === controls.country.value) &&
+    (!controls.type.value || site.type === controls.type.value) &&
+    (!controls.status.value || site.status === controls.status.value)
+  );
+
+  visible.forEach(site => {
+    const icon = L.divIcon({
+      className: "pin-icon",
+      html: `<div class="pin" style="background:${colours[site.type] || "#3D332B"}"></div>`,
+      iconSize: [30, 38],
+      iconAnchor: [14, 34],
+      popupAnchor: [0, -32]
     });
-  </script>
+
+    const popup = document.createElement("div");
+    const heading = document.createElement("strong");
+    heading.textContent = site.name;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = "Read case details";
+    button.addEventListener("click", () => {
+      showDetails(site);
+      document.getElementById("details").scrollIntoView({
+        behavior: "smooth", block: "start"
+      });
+    });
+    popup.append(heading, button);
+
+    L.marker([site.lat, site.lng], {icon, title: site.name})
+      .bindPopup(popup)
+      .on("click", () => showDetails(site))
+      .addTo(markers);
+  });
+
+  const cases = new Set(visible.map(site => site.caseId)).size;
+  document.getElementById("count").textContent =
+    `${visible.length} of ${sites.length} sites shown · ${cases} distinct cases` +
+    (visible.length ? "" : " · No matches. Try resetting the filters.");
+
+  if (selectedId && !visible.some(site => site.id === selectedId)) {
+    clearDetails();
+  }
+
+  if (visible.length) {
+    map.fitBounds(markers.getBounds(), {padding: [35, 35], maxZoom: 12});
+  }
+}
+
+Object.values(controls).forEach(control =>
+  control.addEventListener("change", render)
+);
+
+document.getElementById("reset").addEventListener("click", () => {
+  Object.values(controls).forEach(control => control.value = "");
+  clearDetails();
+  render();
+});
+
+render();
+</script>
 </body>
 </html>
