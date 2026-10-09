@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sites of Memory — Hosting Test</title>
+  <style>
+    body {
+      margin: 0;
+      background: #E8DFD0;
+      color: #302B26;
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+
+    header {
+      padding: 32px 24px;
+      background: #3D332B;
+      color: #FFF9F0;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: Georgia, serif;
+    }
+
+    main {
+      max-width: 700px;
+      margin: 40px auto;
+      padding: 28px;
+      background: #F4EFE5;
+      border-radius: 8px;
+    }
+
+    button {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 4px;
+      background: #783F43;
+      color: white;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #603236;
+    }
+
+    button:focus-visible {
+      outline: 3px solid #365F75;
+      outline-offset: 4px;
+    }
+
+    @media (max-width: 760px) {
+      main {
+        margin: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Court-Ordered Sites of Memory</h1>
+    <p>Group project · Website hosting test</p>
+  </header>
+
+  <main>
+    <h2>Your website is working</h2>
+    <p>
+      If you can see this page at your GitHub Pages address,
+      your website files are being published successfully.
+    </p>
+
+    <button id="test-button" type="button">Test interaction</button>
+    <p id="result" role="status"></p>
+
+    <p><small>This is a test page. It contains no real case data.</small></p>
+  </main>
+
+  <script>
+    document.getElementById("test-button").addEventListener("click", () => {
+      document.getElementById("result").textContent =
+        "Success — JavaScript is working too.";
+    });
+  </script>
+</body>
+</html>
